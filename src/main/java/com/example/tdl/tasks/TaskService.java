@@ -36,14 +36,14 @@ public class TaskService {
 
             task.setUsername(currentUser);
 
-            log.info("attempting to save {} for {}", task.toString(), currentUser);
+            log.info("attempting to save {} for {}", task, currentUser);
 
             Task savedTask = taskRepository.saveAndFlush(task);
             log.info("saved task with Id {}", savedTask.getId());
             return savedTask;
         }
         catch(Exception e){
-            log.error("failed to parse json");
+            log.error("failed to save {} for {} to database", task, currentUser);
             throw new RuntimeException(e);
         }
 
