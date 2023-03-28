@@ -1,0 +1,45 @@
+name: branch-deploy
+
+on:
+  issue_comment:
+    types: [ created ]
+
+permissions:
+  pull-requests: write
+  deployments: write
+  contents: write
+  checks: read
+
+jobs:
+  deploy:
+    name: deploy
+    if: ${{ github.event.issue.pull_request }} || ${{ github.event.issue.pull_request.draft }} # only run on pull request or draft comments
+    runs-on: ubuntu-latest
+    environment: production-secrets # the locked down environment we pull secrets from
+
+    steps:
+
+      # The branch-deploy Action
+      - name: branch-deploy
+        id: branch-deploy
+        uses: github/branch-deploy@v5.1.1
+        with:
+          environment: development # set default environment
+
+        # If the branch-deploy Action was triggered, checkout our branch
+      - name: Checkout
+        if: steps.branch-deploy.outputs.continue == 'true'
+        uses: actions/checkout@v3.3.0
+        with:
+          ref: ${{ steps.branch-deploy.outputs.ref }}
+
+        # Install the Railway CLI through npm
+      - name: Install Railway
+        run: npm i -g @railway/cli
+
+        # Deploy our branch to Railway
+      - name: Deploy to Railway
+        if: steps.branch-deploy.outputs.continue == 'true'
+        run: railway up
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
