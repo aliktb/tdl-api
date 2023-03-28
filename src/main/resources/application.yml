@@ -9,9 +9,9 @@ spring:
         jwt:
           issuer-uri: ${auth0.domain}
   datasource:
-    url: jdbc:postgresql://localhost:5430/tdl-api
-    username: postgres
-    password: postgres
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5430/tdl-api}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
 
   jpa:
     hibernate:
