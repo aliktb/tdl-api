@@ -3,6 +3,7 @@ package com.example.tdl.tasks;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -26,7 +27,11 @@ public class Task {
     @Column(name="id")
     private UUID id;
     private String username;
+    private String taskTitle;
+    private String taskDescription;
     private Date dueDate;
+    @CreationTimestamp
+    private Date createdDate;
     private boolean complete;
 
 
