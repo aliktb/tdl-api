@@ -1,15 +1,13 @@
 package com.example.tdl.tasks;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.example.tdl.security.IAuthenticationFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -18,19 +16,27 @@ public class TaskService {
     @Autowired
     TaskRepository taskRepository;
 
-    public List<Task> getAllTasksForUser(String user){
+    @Autowired
+    private IAuthenticationFacade authenticationFacade;
 
-        log.info("fetching tasks for user {}", user);
-        List<Task> listOfTasks = taskRepository.findByUsername(user);
+    public List<Task> getAllTasksForUser(){
 
-        log.info("found {} tasks for {}", listOfTasks.size(), user);
+    Authentication authentication = authenticationFacade.getAuthentication();
+    String currentUser = authentication.getName();
+
+
+        log.info("fetching tasks for user {}", currentUser);
+        List<Task> listOfTasks = taskRepository.findByUsername(currentUser);
+
+        log.info("found {} tasks for {}", listOfTasks.size(), currentUser);
 
         return listOfTasks;
     }
 
     public Task addNewTask(Task task){
 
-        String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = authenticationFacade.getAuthentication();
+        String currentUser = authentication.getName();
 
         try {
 
@@ -43,10 +49,29 @@ public class TaskService {
             return savedTask;
         }
         catch(Exception e){
-            log.error("failed to save {} for {} to database", task, currentUser);
+            log.error("failed to save {} for {} to database", task, currentUser, e);
             throw new RuntimeException(e);
         }
 
 
+    }
+
+    public void deleteTaskById(UUID taskId){
+
+        Authentication authentication = authenticationFacade.getAuthentication();
+        String currentUser = authentication.getName();
+
+        log.info("attempting to delete Task with ID {} for user {}", taskId, currentUser);
+
+        try{
+
+            taskRepository.deleteById(taskId);
+            log.info("deleted task {} for user {}", taskId, currentUser);
+
+        }
+        catch (Exception e){
+            log.error("failed to delete task with ID {} for user {}", taskId, currentUser, e);
+            throw new RuntimeException(e);
+        }
     }
 }
