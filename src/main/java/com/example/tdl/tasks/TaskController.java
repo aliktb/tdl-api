@@ -1,12 +1,12 @@
 package com.example.tdl.tasks;
 
-import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/tasks")
 @AllArgsConstructor
