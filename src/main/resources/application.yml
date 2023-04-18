@@ -8,3 +8,22 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${auth0.domain}
+  datasource:
+    url: jdbc:postgresql://${DBURL:localhost:5430/tdl-api}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: tdl
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: tdl
